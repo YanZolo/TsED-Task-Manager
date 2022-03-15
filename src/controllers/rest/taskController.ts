@@ -1,24 +1,18 @@
 import { Controller } from "@tsed/di";
-import { Default, Delete, Description, Get, Patch, Post, Property, Returns } from "@tsed/schema";
+import { Delete, Description, Get, Patch, Post, Returns } from "@tsed/schema";
 import { BodyParams, PathParams, QueryParams } from "@tsed/platform-params";
-import { Trim, Unique } from "@tsed/mongoose";
+import {TaskModel} from '../../models/taskModel';
+import { TasksService } from "src/services/tasksServices";
 
-class Task {
-  @Property()
-  @Unique()
-  @Trim()
-  name: string;
-
-  @Default(false)
-  completed: boolean;
-}
 
 @Controller("/tasks")
 export class UsersController {
+  constructor(private readonly tasksService: TasksService) {}
+  
   @Get("/")
-  @Returns(200, Array).Of(Task)
+  @Returns(200, Array).Of(TaskModel)
   @Description("return all tasks from database")
-  async getAllTasks(): Promise<Task[]> {
+  async getAllTasks(): Promise<TaskModel[]> {
     return [];
   }
 
@@ -36,7 +30,7 @@ export class UsersController {
   @Post("/")
   @Returns(201)
   @Description("add new task in database")
-  addTask(@BodyParams("task") body: Task): Task {
+  addTask(@BodyParams("task") body: TaskModel): TaskModel {
     console.log("task", body.name);
     return body;
   }
