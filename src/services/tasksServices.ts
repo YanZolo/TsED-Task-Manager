@@ -1,5 +1,4 @@
 import { Service } from "@tsed/di";
-import { BodyParams, PathParams } from "@tsed/platform-params";
 import { TaskModel } from "src/models/taskModel";
 
 
@@ -9,31 +8,37 @@ export class TasksServices {
 
     create(task: TaskModel) {
         this.tasks.push(task);
-        return `task ${task} was successfully created`
+        console.log(`task: ${task.name}\n completed: ${task.completed}`);
+        return `task ${task.name} was successfully created`
     }
 
     findAll(): TaskModel[] {
+        console.table(this.tasks)
         return this.tasks;
     }
     findOne(name: string): TaskModel {
+        console.log(this.tasks.filter(task => task.name === name)[0])
         return this.tasks.filter(task => task.name === name)[0]
     }
-    update(name: string, body: TaskModel): TaskModel {
-        return this.tasks
+    update(name: string, taskUpdated: TaskModel) {
+        const taskBeforeUpdate = this.tasks
             .splice(this.tasks
                 .indexOf(this.tasks
-                    .filter(task => task.name === name)[0]), 1, body)[0]
+                    .filter(task => task.name === name)[0]), 1, taskUpdated)[0]
+
+        console.info("updated from : ", taskBeforeUpdate,". To : ", taskUpdated)
+
+        return `The task was updated successfully from "name: ${taskBeforeUpdate.name}, completed: ${taskBeforeUpdate.completed}" to "name: ${taskUpdated.name}, completed: ${taskUpdated.completed}"`
     }
     delete(name: string): string {
+        const taskName = name
         const result = this.tasks
             .splice(this.tasks
                 .indexOf(this.tasks
                     .filter(task => task.name === name)[0]), 1)
-        console.log(`task ${result[0].name} was successfully deleted`);
-        return `task ${result[0].name} was successfully deleted `
 
-        // const task =  this.tasks.filter(task => task.name === name)[0]
-        // this.tasks.splice(this.tasks.indexOf(task),1)
-        // return this.tasks
+        console.log(`task "${taskName}" was successfully deleted and completed: ${result[0].completed}`);
+
+        return `task "${taskName}" was ${result[0].completed ? 'completed and' : 'not completed and'} successfully deleted !`
     }
 }

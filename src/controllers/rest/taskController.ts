@@ -15,6 +15,7 @@ export class TasksControllerController {
   @Returns(200, Array).Of(TaskModel)
   @Description("return all tasks from database")
   async getAllTasks(): Promise<TaskModel[]> {
+    console.trace()
     return this.tasksService.findAll();
   }
 
@@ -25,34 +26,34 @@ export class TasksControllerController {
     @QueryParams("search")
     @Description("Search keyword and return the task in database that match the given name")
     name: string
-  ) {
-    return this.tasksService.findOne(name);
+  ): Promise<TaskModel> {
+    return this.tasksService.findOne(name.trim());
   }
 
   @Post("/")
   @Returns(201)
   @Description("add new task in database")
   async addTask(@BodyParams("task") task: TaskModel): Promise<string> {
-    console.log(`task: ${task.name}\n completed: ${task.completed}`);
     return this.tasksService.create(task);
   }
 
   @Patch("/:name")
   @Returns(200)
   async updateTask(
-    @PathParams("name")
-    @BodyParams("task")
-    @Description("find by id a task in database and update it")
-    name: string, task: TaskModel
-  ) {
-    return this.tasksService.update(name, task)
+    @PathParams('taskName')
+    name: string,
+    @BodyParams()
+    body: TaskModel
+  ): Promise<string> {
+    console.info("name :", name, "body :", body)
+    return this.tasksService.update(name, body)
   }
 
   @Delete("/:name")
   async deleteTask(
     @PathParams("name")
     @Description("find by name and delete task")
-    name : string
+    name: string
   ): Promise<string> {
     return this.tasksService.delete(name)
   }
