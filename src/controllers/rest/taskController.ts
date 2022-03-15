@@ -1,62 +1,60 @@
 import { Controller } from "@tsed/di";
-import { Default, Delete, Description, Get, Patch, Post, Property, Returns } from "@tsed/schema";
+import { Delete, Description, Get, Patch, Post, Returns, string } from "@tsed/schema";
 import { BodyParams, PathParams, QueryParams } from "@tsed/platform-params";
-import { Trim, Unique } from "@tsed/mongoose";
+import { TaskModel } from '../../models/taskModel';
+import { TasksServices } from "src/services/tasksServices";
+import { Request } from "express";
+import { Req } from "@tsed/common";
 
-class Task {
-  @Property()
-  @Unique()
-  @Trim()
-  name: string;
-
-  @Default(false)
-  completed: boolean;
-}
 
 @Controller("/tasks")
-export class UsersController {
+export class TasksControllerController {
+  constructor(private readonly tasksService: TasksServices) { }
+
   @Get("/")
-  @Returns(200, Array).Of(Task)
+  @Returns(200, Array).Of(TaskModel)
   @Description("return all tasks from database")
-  async getAllTasks(): Promise<Task[]> {
-    return [];
+  async getAllTasks(): Promise<TaskModel[]> {
+    console.trace()
+    return this.tasksService.findAll();
   }
 
-  @Get("/:id")
+  @Get("/:name")
   @Returns(200)
   async getTask(
-    @PathParams("id")
+    @PathParams("name")
     @QueryParams("search")
-    @Description("Search keyword and return the task in database that match the given id")
-    id: string
-  ) {
-    return { idRequestedTask: id };
+    @Description("Search keyword and return the task in database that match the given name")
+    name: string
+  ): Promise<TaskModel> {
+    return this.tasksService.findOne(name.trim());
   }
 
   @Post("/")
   @Returns(201)
   @Description("add new task in database")
-  addTask(@BodyParams("task") body: Task): Task {
-    console.log("task", body.name);
-    return body;
+  async addTask(@BodyParams("task") task: TaskModel): Promise<string> {
+    return this.tasksService.create(task);
   }
 
-  @Patch("/:id")
+  @Patch("/:name")
   @Returns(200)
   async updateTask(
-    @PathParams("id")
-    @Description("find by id a task in database and update it")
-    id: string
-  ) {
-    return { idTaskRequestedForUpdating: id };
+    @PathParams('taskName')
+    name: string,
+    @BodyParams()
+    body: TaskModel
+  ): Promise<string> {
+    console.info("name :", name, "body :", body)
+    return this.tasksService.update(name, body)
   }
 
-  @Delete("/:id")
+  @Delete("/:name")
   async deleteTask(
-    @PathParams("id")
-    @Description("find by id and delete task")
-    id: string
-  ): Promise<void> {
-    console.log("task deleted successfully");
+    @PathParams("name")
+    @Description("find by name and delete task")
+    name: string
+  ): Promise<string> {
+    return this.tasksService.delete(name)
   }
 }
