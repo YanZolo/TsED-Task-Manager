@@ -1,44 +1,41 @@
-import { Service } from "@tsed/di";
+import { Inject, Injectable } from "@tsed/di";
+import { NotFound } from "@tsed/exceptions";
+import { MongooseModel } from "@tsed/mongoose";
 import { TaskModel } from "src/models/taskModel";
 
-
-@Service()
+@Injectable()
 export class TasksServices {
-    private readonly tasks: TaskModel[] = [];
+  @Inject(TaskModel) private readonly model: MongooseModel<TaskModel>;
 
-    create(task: TaskModel) {
-        this.tasks.push(task);
-        console.log(`task: ${task.name}\n completed: ${task.completed}`);
-        return `task ${task.name} was successfully created`
+  async create(task: TaskModel) {
+    const newTask = new this.model(task);
+    await newTask.save();
+    console.log(`task: ${task.name}\n completed: ${task.completed}`);
+    return newTask;
+  }
+
+  async findAll(): Promise<TaskModel[]> {
+    const tasks = await this.model.find();
+    console.table(tasks);
+    return tasks;
+  }
+
+  async findOne(id: string): Promise<TaskModel | any> {
+    const task = await this.model.findById(id);
+    
+    if (task) {
+      return task;
     }
+    
+    throw new NotFound("Task not found");
+  }
 
-    findAll(): TaskModel[] {
-        console.table(this.tasks)
-        return this.tasks;
-    }
-    findOne(name: string): TaskModel {
-        console.log(this.tasks.filter(task => task.name === name)[0])
-        return this.tasks.filter(task => task.name === name)[0]
-    }
-    update(name: string, taskUpdated: TaskModel) {
-        const taskBeforeUpdate = this.tasks
-            .splice(this.tasks
-                .indexOf(this.tasks
-                    .filter(task => task.name === name)[0]), 1, taskUpdated)[0]
+  async update(id: string, task: TaskModel) {
+    return this.model.findByIdAndUpdate(id, task, {new: true, upsert: false});
+  }
 
-        console.info("updated from : ", taskBeforeUpdate,". To : ", taskUpdated)
-
-        return `The task was updated successfully from "name: ${taskBeforeUpdate.name}, completed: ${taskBeforeUpdate.completed}" to "name: ${taskUpdated.name}, completed: ${taskUpdated.completed}"`
-    }
-    delete(name: string): string {
-        const taskName = name
-        const result = this.tasks
-            .splice(this.tasks
-                .indexOf(this.tasks
-                    .filter(task => task.name === name)[0]), 1)
-
-        console.log(`task "${taskName}" was successfully deleted and completed: ${result[0].completed}`);
-
-        return `task "${taskName}" was ${result[0].completed ? 'completed and' : 'not completed and'} successfully deleted !`
-    }
+  async delete(id: string): Promise<void> {
+    await this.findOne(id);
+    await this.model.deleteOne({ _id: id });
+  }
 }
