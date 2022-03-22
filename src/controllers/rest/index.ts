@@ -4,3 +4,4 @@
 
 export * from "./HelloWorldController";
 export * from "./taskController";
+export * from "./userController";
