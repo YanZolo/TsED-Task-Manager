@@ -11,7 +11,15 @@ export class TasksServices {
 
   async create(task: TaskModel) {
     const newTask = new this.model(task);
-    await newTask.save();
+    await newTask.save(async (err, doc) => {
+      if (err) return err;
+      const user = await this.userModel.findByIdAndUpdate(
+        { _id: doc.userId },
+        { $addToSet: { tasks: task } },
+        { new: true, upsert: false }
+      );
+      console.log("user taskservice create() ===> ", user);
+    });
 
     console.log(`task ====> ${task.name}\n completed ========>: ${task.completed}`);
     return task;

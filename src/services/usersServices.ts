@@ -1,7 +1,6 @@
 import { Inject, Injectable } from "@tsed/di";
 import { NotFound } from "@tsed/exceptions";
 import { MongooseModel } from "@tsed/mongoose";
-import { date } from "@tsed/schema";
 import { TaskModel } from "src/models/taskModel";
 import { UserModel } from "src/models/userModel";
 

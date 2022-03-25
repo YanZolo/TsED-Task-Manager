@@ -62,7 +62,7 @@ export class UserController {
 
   ///////////////////////////////////// tasks routes
 
-  @Post("/task/:id")
+  @Patch("/task/:id")
   @Returns(201, UserModel)
   @Description("create new task in user database")
   async createTask(

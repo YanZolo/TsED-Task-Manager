@@ -2,6 +2,7 @@ import { Default, Description, Example, Groups, MinLength, Property, Required, R
 import { Model, ObjectID, Ref, Trim, Unique } from "@tsed/mongoose";
 import { v4 } from "uuid";
 import { UserModel } from "./userModel";
+import mongoose from "mongoose";
 @Model({ name: "tasks" })
 export class TaskModel {
   // @Default(v4())
@@ -22,6 +23,9 @@ export class TaskModel {
   @Description("Indique si la tache est terminée ou non")
   completed: boolean;
 
-  @Ref(() => TaskModel)
+  @Ref(() => UserModel)
   userId: Ref<UserModel>;
+
+  // @Property()
+  // userId: { type: mongoose.Schema.Types.ObjectId, ref: 'Usermodel' }
 }
