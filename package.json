@@ -52,6 +52,7 @@
     "method-override": "^3.0.0",
     "mongoose": "^6.2.6",
     "passport": "^0.5.2",
+    "passport-local": "^1.0.0",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
@@ -70,6 +71,7 @@
     "@types/multer": "^1.4.7",
     "@types/node": "^17.0.21",
     "@types/passport": "^1.0.7",
+    "@types/passport-local": "^1.0.34",
     "@types/supertest": "^2.0.11",
     "@types/uuid": "^8.3.4",
     "@typescript-eslint/eslint-plugin": "^5.14.0",

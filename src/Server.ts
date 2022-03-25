@@ -15,20 +15,23 @@ import { config } from "./config";
 import * as rest from "./controllers/rest";
 import * as pages from "./controllers/pages";
 import session from "express-session";
-import { TaskModel } from "./models/taskModel";
+import { PassportController } from "./controllers/passport/PassportController";
+import { User } from "./models/User";
 const rootDir = __dirname;
 @Configuration({
+  rootDir,
   ...config,
   acceptMimes: ["application/json"],
-  httpPort: process.env.PORT || 8080,
+  httpPort: process.env.PORT || 8888,
   httpsPort: false, // CHANGE
-  componentsScan: [`${rootDir}/protocols/*.ts`],
+  componentsScan: [`${rootDir}/services/**/*.ts`, `${rootDir}/protocols/*.ts`],
   passeport: {
-    taskModel: TaskModel
+    userInfoModel: User
   },
   mount: {
     "/rest": [...Object.values(rest)],
-    "/": [...Object.values(pages)]
+    "/": [...Object.values(pages)],
+    "/passport": PassportController
   },
   swagger: [
     {

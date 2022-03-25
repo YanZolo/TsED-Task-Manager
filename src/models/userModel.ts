@@ -1,4 +1,15 @@
-import { CollectionOf, Default, Description, Example, Groups, MinLength, Property, Required, RequiredGroups } from "@tsed/schema";
+import {
+  CollectionOf,
+  Default,
+  Description,
+  Example,
+  Groups,
+  MaxLength,
+  MinLength,
+  Property,
+  Required,
+  RequiredGroups
+} from "@tsed/schema";
 import { Model, ObjectID, Ref, Trim, Unique } from "@tsed/mongoose";
 import { TaskModel } from "./taskModel";
 import mongoose from "mongoose";
@@ -15,7 +26,6 @@ export class UserModel {
   @Groups("!create", "!patch")
   @Property()
   @Trim()
-  @Required()
   @MinLength(3)
   @Example("john doe")
   username: string;
@@ -23,11 +33,19 @@ export class UserModel {
   @Unique()
   @Required()
   @RequiredGroups("!patch")
+  @Example("john@doe.com")
   email: string;
 
-  @Ref(() => TaskModel)
-  @CollectionOf(() => TaskModel)
-  tasks?: Ref<TaskModel>[];
-  // @Property()
-  // tasks: [{ type: mongoose.Schema.Types.ObjectId, ref: 'TaskModel' }]
+  @Required()
+  @MinLength(4)
+  @MaxLength(10)
+  password: string;
+
+  verifyPassword(password: string) {
+    return this.password === password;
+  }
+
+  // @Ref(() => TaskModel)
+  // @CollectionOf(() => TaskModel)
+  // tasks?: Ref<TaskModel>[];
 }

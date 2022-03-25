@@ -1,40 +1,49 @@
-// import {BodyParams, Req} from "@tsed/common";
-// import {OnInstall, OnVerify, Protocol} from "@tsed/passport";
-// import {IStrategyOptions, Strategy} from "passport-local";
-// import {Credentials} from "../models/Credentials";
-// import {UsersService} from "../services/users/UsersService";
+import { Req } from "@tsed/common";
+import { BodyParams } from "@tsed/platform-params";
+import { BeforeInstall, OnInstall, OnVerify, Protocol } from "@tsed/passport";
+import { IStrategyOptions, Strategy } from "passport-local";
+import { UsersServices } from "../services/usersServices";
+import { Inject } from "@tsed/di";
+import { Credentials } from "src/models/credential";
 
-// @Protocol<IStrategyOptions>({
-//   name: "login",
-//   useStrategy: Strategy,
-//   settings: {
-//     usernameField: "email",
-//     passwordField: "password"
-//   }
-// })
-// export class LoginLocalProtocol implements OnVerify, OnInstall {
-//   constructor(private usersService: UsersService) {
-//   }
+@Protocol<IStrategyOptions>({
+  name: "login",
+  useStrategy: Strategy,
+  settings: {
+    usernameField: "email",
+    passwordField: "password"
+  }
+})
+export class LoginLocalProtocol implements OnVerify, OnInstall, BeforeInstall {
+  @Inject()
+  private usersService: UsersServices;
 
-//   async $onVerify(@Req() request: Req, @BodyParams() credentials: Credentials) {
-//     const {email, password} = credentials;
+  async $beforeInstall(settings: IStrategyOptions): Promise<IStrategyOptions> {
+    // load something from backend
+    // settings.usernameField = await this.usersService.loadFieldConfiguration()
 
-//     const user = await this.usersService.findOne({email});
+    return settings;
+  }
 
-//     if (!user) {
-//       return false;
-//       // OR throw new NotAuthorized("Wrong credentials")
-//     }
+  $onInstall(strategy: Strategy): void {
+    // intercept the strategy instance to adding extra configuration
+  }
 
-//     if (!user.verifyPassword(password)) {
-//       return false;
-//       // OR throw new NotAuthorized("Wrong credentials")
-//     }
+  async $onVerify(@Req() request: Req, @BodyParams() credentials: Credentials) {
+    const { email, password } = credentials;
 
-//     return user;
-//   }
+    const user = await this.usersService.findOne(email);
 
-//   $onInstall(strategy: Strategy): void {
-//     // intercept the strategy instance to adding extra configuration
-//   }
-// }
+    if (!user) {
+      // return false;
+      throw new Error("Wrong credentials");
+    }
+
+    if (!user.verifyPassword(password)) {
+      // return false;
+      throw new Error("Wrong credentials");
+    }
+
+    return user;
+  }
+}
