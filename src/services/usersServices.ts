@@ -6,7 +6,7 @@ import { TaskModel } from "src/models/taskModel";
 import { UserModel } from "src/models/userModel";
 
 @Injectable()
-export class UserServices {
+export class UsersServices {
   @Inject(UserModel) private readonly model: MongooseModel<UserModel>;
 
   async createUser(user: UserModel) {
