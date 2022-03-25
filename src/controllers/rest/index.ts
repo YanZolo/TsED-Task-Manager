@@ -3,4 +3,6 @@
  */
 
 export * from "./HelloWorldController";
+export * from "./passeportController";
 export * from "./taskController";
+export * from "./userController";

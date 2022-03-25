@@ -10,19 +10,28 @@ import cors from "cors";
 import "@tsed/ajv";
 import "@tsed/swagger";
 import "@tsed/mongoose";
+import "@tsed/passport";
 import { config } from "./config";
 import * as rest from "./controllers/rest";
 import * as pages from "./controllers/pages";
-
+import session from "express-session";
+import { PassportController } from "./controllers/passport/PassportController";
+import { User } from "./models/User";
+const rootDir = __dirname;
 @Configuration({
+  rootDir,
   ...config,
   acceptMimes: ["application/json"],
-  httpPort: process.env.PORT || 8080,
+  httpPort: process.env.PORT || 8888,
   httpsPort: false, // CHANGE
-  componentsScan: false,
+  componentsScan: [`${rootDir}/services/**/*.ts`, `${rootDir}/protocols/*.ts`],
+  passeport: {
+    userInfoModel: User
+  },
   mount: {
     "/rest": [...Object.values(rest)],
-    "/": [...Object.values(pages)]
+    "/": [...Object.values(pages)],
+    "/passport": PassportController
   },
   swagger: [
     {
@@ -38,6 +47,18 @@ import * as pages from "./controllers/pages";
     bodyParser.json(),
     bodyParser.urlencoded({
       extended: true
+    }),
+    session({
+      secret: "mysecretkey",
+      resave: true,
+      saveUninitialized: true,
+      // maxAge: 3600,
+      cookie: {
+        path: "/",
+        httpOnly: true,
+        secure: false,
+        maxAge: undefined
+      }
     })
   ],
   views: {
