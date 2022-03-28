@@ -1,7 +1,7 @@
-import { Req, Request, BodyParams, Post } from "@tsed/common";
+import { Req, Request, BodyParams, Post, Res } from "@tsed/common";
 import { Controller } from "@tsed/di";
-import { Authenticate } from "@tsed/passport";
-import { Returns } from "@tsed/schema";
+import { Authenticate, Authorize } from "@tsed/passport";
+import { Delete, Returns } from "@tsed/schema";
 import { Credentials } from "src/models/credential";
 import { User } from "src/models/User";
 import { UserCreation } from "src/models/UserCreation";
@@ -20,5 +20,13 @@ export class PassportController {
   @Authenticate("register")
   signup(@Req() req: Req, @BodyParams() user: UserCreation) {
     return req.user;
+  }
+
+  @Delete("/logout")
+  @Returns(204)
+  logout(@Req() req: Req, @Res() res: Res) {
+    req.user = "";
+    res.cookie("connect.sid", "", { maxAge: 0 });
+    res.redirect("/login");
   }
 }
