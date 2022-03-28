@@ -4,6 +4,7 @@ import { MongooseModel } from "@tsed/mongoose";
 import { TaskModel } from "src/models/taskModel";
 import { User } from "src/models/User";
 import { UserCreation } from "src/models/UserCreation";
+import bcrypt from "bcrypt";
 
 @Injectable()
 export class UsersServices {
@@ -11,8 +12,9 @@ export class UsersServices {
   @Inject(User) private readonly userModel: MongooseModel<User>;
 
   async createUser(user: UserCreation) {
+    const hashedPasswort = await bcrypt.hash(user.password, 10);
+    user.password = hashedPasswort;
     const newUser = new this.userCreationModel(user);
-
     console.log(`user: ${user.username} will be created`);
 
     return await newUser.save();
@@ -24,8 +26,17 @@ export class UsersServices {
     return users;
   }
 
-  async findOne(id: string): Promise<User | any> {
+  async findOneById(id: string): Promise<User | any> {
     const user = await this.userModel.findById(id);
+
+    if (user) {
+      return user;
+    }
+
+    throw new NotFound("User not found");
+  }
+  async findOneByEmail({ email }: Record<string, string>): Promise<User | any> {
+    const user = await this.userModel.findOne({ email: email });
 
     if (user) {
       return user;
@@ -39,7 +50,7 @@ export class UsersServices {
   }
 
   async delete(id: string): Promise<void> {
-    await this.findOne(id);
+    await this.findOneById(id);
     await this.userModel.deleteOne({ _id: id });
   }
 

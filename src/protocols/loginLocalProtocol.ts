@@ -5,6 +5,7 @@ import { IStrategyOptions, Strategy } from "passport-local";
 import { UsersServices } from "../services/usersServices";
 import { Inject } from "@tsed/di";
 import { Credentials } from "src/models/credential";
+import bcrypt from "bcrypt";
 
 @Protocol<IStrategyOptions>({
   name: "login",
@@ -31,19 +32,18 @@ export class LoginLocalProtocol implements OnVerify, OnInstall, BeforeInstall {
 
   async $onVerify(@Req() request: Req, @BodyParams() credentials: Credentials) {
     const { email, password } = credentials;
-
-    const user = await this.usersService.findOne(email);
-
-    if (!user) {
-      // return false;
-      throw new Error("Wrong credentials");
+    const user = await this.usersService.findOneByEmail({ email });
+    const decodedPassword = await bcrypt.compare(password, user.password);
+    console.log("decodedPassword", decodedPassword, user.password);
+    if (!user || !decodedPassword || !user.verifyPassword(password)) {
+      return false;
     }
-
-    if (!user.verifyPassword(password)) {
-      // return false;
-      throw new Error("Wrong credentials");
+    // if (!user.verifyPassword(password)) {
+    //   return false;
+    // }
+    if (user && decodedPassword) {
+      console.log("connected ======>", user);
+      return user;
     }
-
-    return user;
   }
 }

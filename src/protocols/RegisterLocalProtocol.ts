@@ -19,7 +19,7 @@ export class RegisterLocalProtocol implements OnVerify {
 
   async $onVerify(@Req() request: Req, @BodyParams() user: UserCreation) {
     const { email } = user;
-    const found = await this.usersService.findOne(email);
+    const found = await this.usersService.findOneByEmail({ email });
 
     if (found) {
       throw new Forbidden("This email already exist");
