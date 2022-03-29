@@ -63,6 +63,7 @@ const rootDir = __dirname;
   ],
   views: {
     root: join(process.cwd(), "../views"),
+    viewEngine: "ejs",
     extensions: {
       ejs: "ejs"
     }
