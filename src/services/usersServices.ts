@@ -42,7 +42,7 @@ export class UsersServices {
       return user;
     }
 
-    throw new NotFound("User not found");
+    return null;
   }
 
   async updateUser(id: string, user: User) {

@@ -1,6 +1,6 @@
 import { Controller } from "@tsed/di";
-import { Delete, Description, Get, Groups, Patch, Post, Returns } from "@tsed/schema";
-import { BodyParams, PathParams, QueryParams } from "@tsed/platform-params";
+import { Delete, Description, Get, Groups, Patch, Post, Returns, View } from "@tsed/schema";
+import { BodyParams, HeaderParams, PathParams, QueryParams } from "@tsed/platform-params";
 import { UsersServices } from "src/services/usersServices";
 import { ObjectID } from "@tsed/mongoose";
 // import { UserModel } from "src/models/userModel";
@@ -64,7 +64,7 @@ export class UserController {
 
   ///////////////////////////////////// tasks routes
 
-  @Patch("/task/:id")
+  @Post("/task/:id")
   @Returns(201, TaskModel)
   @Description("create new task in user database")
   async createTask(
@@ -72,7 +72,7 @@ export class UserController {
     @ObjectID()
     id: string,
     @BodyParams()
-    @Groups("patch")
+    @Groups("create")
     task: TaskModel
   ) {
     return this.userService.createTask(id, task);

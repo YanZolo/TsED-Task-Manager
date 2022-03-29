@@ -5,21 +5,25 @@ import { Delete, Returns } from "@tsed/schema";
 import { Credentials } from "src/models/credential";
 import { User } from "src/models/User";
 import { UserCreation } from "src/models/UserCreation";
-
+import express, { Application } from "express";
+const app: Application = express();
 @Controller("/auth")
 export class PassportController {
   @Post("/login")
   @Authenticate("login", { failWithError: false })
-  @Returns(200, User)
+  @Returns(200)
   @Returns(400).Description("Validation error")
-  login(@Req() req: Request, @BodyParams() credentials: Credentials) {
-    return req.user;
+  login(@Req() req: Request, @Res() res: Res, @BodyParams() credentials: Credentials) {
+    console.log("PassportLogin req.user ====>", req.user);
+    res.redirect("/profile");
   }
   @Post("/register")
-  @Returns(201, User)
+  @Returns(201)
   @Authenticate("register")
-  signup(@Req() req: Req, @BodyParams() user: UserCreation) {
-    return req.user;
+  signup(@Req() req: Req, @Res() res: Res, @BodyParams() user: UserCreation) {
+    console.log(" register ==> req.user", req.user);
+    res.locals.user = req.user;
+    res.redirect("/login");
   }
 
   @Delete("/logout")
@@ -27,6 +31,6 @@ export class PassportController {
   logout(@Req() req: Req, @Res() res: Res) {
     req.user = "";
     res.cookie("connect.sid", "", { maxAge: 0 });
-    res.redirect("/login");
+    res.redirect("passport/auth/login"); // render login.ejs
   }
 }
