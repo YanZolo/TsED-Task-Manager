@@ -4,6 +4,7 @@ import { View } from "@tsed/platform-views";
 import { SwaggerSettings } from "@tsed/swagger";
 import { Hidden, Get, Returns } from "@tsed/schema";
 import { Req, Res } from "@tsed/common";
+import { User } from "src/models/User";
 
 @Hidden()
 @Controller("/")
@@ -49,12 +50,12 @@ export class IndexController {
   @View("profile.ejs")
   @Returns(200, String).ContentType("text/html")
   getProfile(@Res() res: Res, @Req() req: Req) {
-    const user = res.locals.user; // can't retreive user.username maybe i need to use middlware and  locals() decorator
-    console.log("getProfile() res.locals ====>", res.locals);
+    const user = req.app.get("user");
+    console.log("getProfile() req.app.get('user') ====>", req.app.get("user"));
     console.log("getProfile() user ====>", user);
     return {
       title: "REGISTER PAGE",
-      user: user
+      user: user.username
     };
   }
 }

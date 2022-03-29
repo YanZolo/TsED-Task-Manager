@@ -5,8 +5,7 @@ import { Delete, Returns } from "@tsed/schema";
 import { Credentials } from "src/models/credential";
 import { User } from "src/models/User";
 import { UserCreation } from "src/models/UserCreation";
-import express, { Application } from "express";
-const app: Application = express();
+
 @Controller("/auth")
 export class PassportController {
   @Post("/login")
@@ -15,6 +14,7 @@ export class PassportController {
   @Returns(400).Description("Validation error")
   login(@Req() req: Request, @Res() res: Res, @BodyParams() credentials: Credentials) {
     console.log("PassportLogin req.user ====>", req.user);
+    req.app.set("user", res.req.user); // using app.set for setting and send data
     res.redirect("/profile");
   }
   @Post("/register")
@@ -22,7 +22,6 @@ export class PassportController {
   @Authenticate("register")
   signup(@Req() req: Req, @Res() res: Res, @BodyParams() user: UserCreation) {
     console.log(" register ==> req.user", req.user);
-    res.locals.user = req.user;
     res.redirect("/login");
   }
 
