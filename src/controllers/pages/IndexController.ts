@@ -5,6 +5,7 @@ import { SwaggerSettings } from "@tsed/swagger";
 import { Hidden, Get, Returns } from "@tsed/schema";
 import { Req, Res } from "@tsed/common";
 import { User } from "src/models/User";
+import { Authorize } from "@tsed/passport";
 
 @Hidden()
 @Controller("/")
@@ -47,10 +48,11 @@ export class IndexController {
   }
 
   @Get("/profile")
+  @Authorize("basic")
   @View("profile.ejs")
   @Returns(200, String).ContentType("text/html")
   getProfile(@Res() res: Res, @Req() req: Req) {
-    const user = req.app.get("user");
+    const user = req.app.get("user"); // using req.app.get for retrieve data
     console.log("getProfile() req.app.get('user') ====>", req.app.get("user"));
     console.log("getProfile() user ====>", user);
     return {
